@@ -1,2 +1,14 @@
 # mini_xplore
- This is the kalman filter part of the project. The goal is to estimate the position of the Thymio based on the overhead camera feedback when available and also the accelerometer. The input to the Thymio is the wheel speed given (left wheel and right wheel).
+
+ 
+Required libraries:
+
+- tqdm (https://pypi.org/project/tqdm/):
+pip install tqdm
+
+- pyvisgraph (https://github.com/TaipanRex/pyvisgraph):
+pip install pyvisgraph
+
+- shapely (https://pypi.org/project/Shapely/):
+REQUIRES GEOS: brew install geos
+pip install shapely
