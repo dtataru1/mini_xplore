@@ -1,0 +1,26 @@
+import pyvisgraph as vg
+
+# Thymio values
+PC_PF_DIST = 62.5
+PC_SUPPORT_DIST = 27.5
+TRIANGLE_SUPPORT = 45
+TRIANGLE_EDGE = 93
+THYMIO_TRIANGLE_TRESHOLD = (TRIANGLE_SUPPORT+TRIANGLE_EDGE)/2
+
+# Computer Vision Constants
+
+THRESHOLD_AREA = 500
+EPSILON_CST = 0.03
+
+# Map and Pixel sizes
+CAM_Y_PIXEL_SIZE = 1080
+CAM_X_PIXEL_SIZE = 1920
+MAP_Y_MM_SIZE = 790
+MAP_X_MM_SIZE = 1430
+CAM_2_MAP = MAP_X_MM_SIZE/CAM_X_PIXEL_SIZE
+
+# Global planner Constants
+
+START_POSITION = vg.Point(5.0,5.5) ## Setup HERE
+END_POSITION = vg.Point(1000.0, 700.0)  ## Setup HERE
+THYMIO_POSITION = vg.Point(50.0,55.5)  ## Given by Daniel

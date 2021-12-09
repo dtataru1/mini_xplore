@@ -5,27 +5,24 @@ from pyvisgraph import visible_vertices as vv
 import merge_obstacles as mo
 from pyvisgraph.graph import Point
 import math
-
-start_point = vg.Point(5.0,5.5) ## Setup HERE
-end_point = vg.Point(50.0, 100.0)  ## Setup HERE
-thymio_point = vg.Point(0.5,0.0)  ## Given by Daniel
+from constants import *
 
 polys = [[vg.Point(31.0,31.0), vg.Point(34.0,31.0), vg.Point(32.0,11.0), vg.Point(29.0,11.0)],
         [vg.Point(10.0,51.0), vg.Point(15.0,85.0), vg.Point(18.0,85.0), vg.Point(13,51.0)],
-        [vg.Point(40.0,60.0), vg.Point(60.0,60.0), vg.Point(60.0,63.0), vg.Point(40.0,63.0)],
-        [vg.Point(62.0,60.0), vg.Point(64.5,63.5), vg.Point(84.0,52.0), vg.Point(84.0,45.0)],
-        [vg.Point(62.0,1.0), vg.Point(65.0,1.0), vg.Point(65.0,15.0), vg.Point(62.0,15.0)],
-        [vg.Point(68.0,28.0), vg.Point(96.0,28.0), vg.Point(96.0,31.0), vg.Point(68,31.0)],
-        [vg.Point(1.0,12.0), vg.Point(1.0,15.0), vg.Point(10.0,15.0), vg.Point(10,12.0)],
-        [vg.Point(10.0,28.0), vg.Point(30.0,28.0), vg.Point(30.0,31.0), vg.Point(10,31.0)],
+        [vg.Point(40.0,60.0), vg.Point(60.0,60.0), vg.Point(60.0,63.0), vg.Point(40.0,63.0)]]
+        #[vg.Point(62.0,60.0), vg.Point(64.5,63.5), vg.Point(84.0,52.0), vg.Point(84.0,45.0)],
+        #[vg.Point(62.0,1.0), vg.Point(65.0,1.0), vg.Point(65.0,15.0), vg.Point(62.0,15.0)],
+        #[vg.Point(68.0,28.0), vg.Point(96.0,28.0), vg.Point(96.0,31.0), vg.Point(68,31.0)],
+        #[vg.Point(1.0,12.0), vg.Point(1.0,15.0), vg.Point(10.0,15.0), vg.Point(10,12.0)],
+        #[vg.Point(10.0,28.0), vg.Point(30.0,28.0), vg.Point(30.0,31.0), vg.Point(10,31.0)],
         #[vg.Point(30.0,1.0), vg.Point(32.0,1.0), vg.Point(32.0,5.0), vg.Point(30,5.0)],
         #[vg.Point(9.0,24.0), vg.Point(9.0,18.0), vg.Point(12.0,18.0), vg.Point(12,24.0)],
         #[vg.Point(-6.0,4.0), vg.Point(-4.0,6.0), vg.Point(1.0,-3.0), vg.Point(0,-5.0)],
         #External borders
-        [vg.Point(10.0,-5.0), vg.Point(10.0,-10.0), vg.Point(90.0,-10.0), vg.Point(90.0,-5.0)],
-        [vg.Point(10.0,105.0), vg.Point(10.0,110.0), vg.Point(90.0,110.0), vg.Point(90.0,105.0)],
-        [vg.Point(-5.0,10.0), vg.Point(-10.0,10.0), vg.Point(-10.0,90.0), vg.Point(-5.0,90.0)],
-        [vg.Point(105.0,10.0), vg.Point(110.0,10.0), vg.Point(110.0,90.0), vg.Point(105,90.0)]]
+        #[vg.Point(10.0,-5.0), vg.Point(10.0,-10.0), vg.Point(90.0,-10.0), vg.Point(90.0,-5.0)],
+        #[vg.Point(10.0,105.0), vg.Point(10.0,110.0), vg.Point(90.0,110.0), vg.Point(90.0,105.0)],
+        #[vg.Point(-5.0,10.0), vg.Point(-10.0,10.0), vg.Point(-10.0,90.0), vg.Point(-5.0,90.0)],
+        #[vg.Point(105.0,10.0), vg.Point(110.0,10.0), vg.Point(110.0,90.0), vg.Point(105,90.0)]]
 
 def increase_coordinates(polygon, howmuch):
     center_x = 0
@@ -60,24 +57,23 @@ def check_point_obstacles_overlap(point,graph,howmuch):
         return vv.closest_point(point, graph, intersected_polygon, length=howmuch)
     else: return point
 
-def operations_loop():
-    global start_point, end_point, polys
+def global_path(polys,thymio_position, end_position):
 
     g = vg.VisGraph()
     g.build(polys)
 
     # Drawing obstacles as received
-    if len(polys) > 0:
-        for polygon in polys:
-            draw_polygon(polygon,'black',1)
+    #if len(polys) > 0:
+        #for polygon in polys:
+            #draw_polygon(polygon,'black',1)
 
     # Increasing distance from obstacles for starting and ending points
-    start_point = check_point_obstacles_overlap(start_point,g.graph,6.5)
-    end_point = check_point_obstacles_overlap(end_point,g.graph,6.5)
+    start_point = check_point_obstacles_overlap(thymio_position,g.graph,65)
+    end_point = check_point_obstacles_overlap(end_position,g.graph,65)
 
     # Increasing obstacle borders
     for p in polys:
-        increase_coordinates(p, 6)
+        increase_coordinates(p, 60)
 
     # Checking obstacles overlaping to merge them
     i = 0
@@ -101,21 +97,16 @@ def operations_loop():
     # Drawing the new obstacles (possibly merged)
     if len(polys) > 0:
         for polygon in polys:
-            draw_polygon(polygon,'black',2)
+            draw_polygon(polygon,'blue',3)
 
     # Showing the visibility graph
     draw_visible_vertices(g.visgraph.get_edges(),'grey', 1)
 
     # Computing the shortest path
-    shortest_path = g.shortest_path(start_point, end_point)
+    shortest_path = g.shortest_path(thymio_position, end_position)
     if len(shortest_path) > 1:
         draw_polygon(shortest_path, 'red', 2, complete=False)
 
     # Exporting the path sequence (without starting point)
     path = shortest_path.pop(0)
-    print("Shortest path", shortest_path)
-    plt.show()
-
-if __name__ == "__main__":
-    operations_loop()
-    quit()
+    return path
