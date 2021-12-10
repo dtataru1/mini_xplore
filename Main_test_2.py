@@ -70,7 +70,7 @@ while (1):
         points = []
         for vertices in cnt:
             print(vertices)
-            image = cv2.circle(image, (vertices[0][0], vertices[0][1]), radius=5, color=(255, 0, 0), thickness=2)
+            image = cv2.circle(image, (vertices[0][0], vertices[0][1]), radius=5, (255, 0, 0), thickness=2)
             points.append(Point(vertices[0][0], vertices[0][1]))
         polys.append(points)
     print(polys)

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from color_detection import *
-from global_planner import *
+from global_planner_Main_test import *
 from constants import *
 
 ### Read the canera feed

@@ -2,20 +2,33 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from constants import *
+from tdmclient import ClientAsync
 
-# Reading the input image
-#filename ='Images/test11.jpg'
-#img = cv2.imread(filename)
+def motors(left, right):
+    return {
+        "motor.left.target": [left],
+        "motor.right.target": [right],
+    }
 
-cap = cv2.VideoCapture(1)
-cv2.namedWindow("Hsv detect", cv2.WINDOW_NORMAL)
-ret, img = cap.read()
+def main(node, variables):
+    try:
+
+        front_tof = []
+        for i in range(5):
+            front_tof.append(node.v.prox.horizontal[i])
+        print(front_tof)
+        #print(node.v.prox.horizontal[1])
+
+    except KeyError:
+        pass  # prox.horizontal not found
 
 
-model_image_size = (MAP_X_MM_SIZE, MAP_Y_MM_SIZE)
-img = cv2.resize(img, model_image_size, interpolation = cv2.INTER_CUBIC)
-#img = img.astype(np.float32)
-#img /= 255.
-
-cv2.imshow("test",img)
-cv2.waitKey()
+with ClientAsync() as client:
+    async def prog():
+        with await client.lock() as node:
+            await node.watch(variables=True)
+            #main(node,node.v)
+            node.add_variables_changed_listener(main)
+            # Will sleep forever:
+            await client.sleep()
+    client.run_async_program(prog)

@@ -3,19 +3,19 @@ from shapely.ops import unary_union
 import pyvisgraph as vg
 import numpy as np
 
-#polygon1 = Polygon([(0,0), (1,1), (1,0)])
-#print(np.size(polygon1.exterior.coords))
-#polygon2 = Polygon([(0,1), (1,0), (1,1)])
-#polygons = [polygon1, polygon2]
-#polys = [vg.Point(0,0), vg.Point(1,1), vg.Point(1,0)]
-#print(polys)
 
 def unify(p1,p2):
-    polygon1 = vg2shapely(p1)
-    polygon2 = vg2shapely(p2)
-    polygons = [polygon1, polygon2]
-    u = unary_union(polygons)
-    return shapely2vg(u)
+    if p1 == []:
+        return p2
+    elif p2 == []:
+        return p1
+    else:
+        polygon1 = vg2shapely(p1)
+        polygon2 = vg2shapely(p2)
+        polygons = [polygon1, polygon2]
+        print(polygons)
+        u = unary_union(polygons)
+        return shapely2vg(u)
 
 def check_overlap(p1,p2):
     polygon1 = vg2shapely(p1)
