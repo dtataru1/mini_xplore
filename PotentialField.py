@@ -18,6 +18,7 @@ cos3a = math.cos(3*alpha)
 plot = True                    # Plot figure
 
 thymio_r = 8                    # thymio radius
+thymio_width = 12/2
 scale = 1                       # sclaing factor to go from cm to mm
 s = 3                           # distance to goal/obstacle from where on the potentials have same amplitude
 r = 0.5                           # Point radius
@@ -35,6 +36,8 @@ pos = [posx, posy]
 
 # Robot goal. Set goal so that pose is at zero --> goal = [goalx-posx, goaly-posy]
 goal_abs = [25, 0]              #[cm]
+
+step_size = 5                   #[cm]
 
 
 # get x and y coordinate for a given prox value (in cm) and prox sensor with origin at the center of the robot
@@ -88,10 +91,11 @@ def PotField(node, variables):
         proxCm = prox2cm(prox)
         proxScale = proxCm*scale
         proxScale.tolist()
-
-        theta = 0                       # robot heading angle
+        global x
+        global y
+        r_theta = 0                       # robot heading angle
         # goal in robot reference
-        goal = rotate((goal_abs[0]-pos[0], goal_abs[1]-pos[1]), -theta)
+        goal = rotate((goal_abs[0]-pos[0], goal_abs[1]-pos[1]), -r_theta)
 
         # Obstacle distance detected by each sensor
         sens_obstacles = [0 for _ in range(len(proxCm))]     # distance given in cm
@@ -159,7 +163,6 @@ def PotField(node, variables):
 
         obstacles = []
         obstacles = np.array(obst)
-
         # Potential field of goal
         for i in range(len(x)):
             for j  in range(len(y)):
@@ -200,17 +203,63 @@ def PotField(node, variables):
                   dx[i][j] = dx[i][j] + rep*(s+r-d)*np.cos(theta)
                   dy[i][j] = dy[i][j] + rep*(s+r-d)*np.sin(theta)
 
+
+
+
+
+
+
+
         ## compute next step
-        posX = math.trunc(posx)
-        posY = math.trunc(posy)
-        # interpolation
-        nextX = (posx-posX)*(dx[posX-1+size][posY-1+size]-dx[posX+1-1+size][posY-1+size]) + dx[posX-1+size][posY-1+size]
-        nextY = (posy-posY)*(dy[posX-1+size][posY-1+size]-dy[posX-1+size][posY+1-1+size]) + dy[posX-1+size][posY-1+size]
-        print(nextY)
+        dx_ob = 0
+        dy_ob = 0
+        obstxy = [1,0]
+        # print(obstacles)
+        for p in range(5):
+            if proxCm[p] != 0 and p != 2:
+                closest_y = 100
+                for o in range(len(obstacles)):
+                    if abs(obstacles[o][1]) < closest_y:
+                        closest_y = abs(obstacles[o][1])
+                        obstxy = obstacles[o]
+
+        eval_x = int(obstxy[0]+size-int(obstxy[0]/2))
+        eval_y = int(obstxy[1]+size+int(obstxy[1]/2))
+
+        dx_ob = dx[eval_y][eval_x]
+        dy_ob = dy[eval_y][eval_x]
+        if dy_ob > dx_ob:
+            dy_norm = dy_ob/abs(dy_ob)
+            dx_norm = dx_ob/abs(dy_ob)
+        else:
+            dx_norm = dx_ob/abs(dx_ob)
+            dy_norm = dy_ob/abs(dx_ob)
+        # scale up to step figsize
+        dx_cm = dx_norm*step_size
+        dy_cm = dy_norm*step_size
+        x_next = dx_cm + posx
+        y_next = dy_cm + posy
+        # break
+
+
+
+
+
+
+
+
+
+        # posX = math.trunc(posx)
+        # posY = math.trunc(posy)
+        # # interpolation
+        # nextX = (posx-posX)*(dx[posX-1+size][posY-1+size]-dx[posX+1-1+size][posY-1+size]) + dx[posX-1+size][posY-1+size]
+        # nextY = (posy-posY)*(dy[posX-1+size][posY-1+size]-dy[posX-1+size][posY+1-1+size]) + dy[posX-1+size][posY-1+size]
+        # print(nextY)
 
         if plot:
             fig, ax = plt.subplots(figsize = (10,10))
             ax.quiver(X, Y, dx, dy)
+            ax.arrow(posx,posy,x_next,y_next, color='y')
             ax.add_patch(plt.Circle(goal, r, color='b'))
             for o in range(len(obstacles)):
                 ax.add_patch(plt.Circle(obstacles[o], r, color='r'))
