@@ -12,7 +12,7 @@ v0 = 10 # basic wheel speed
 
 # Local motion
 K = 0.2 # gain
-FINAL_GOAL = 100
+FINAL_GOAL = 120
 STEP_GOAL = 40
 #T = 0.1 # time constant between measures: motor control speed = 100Hz (@datasheet), taken at 10 Hz here
 

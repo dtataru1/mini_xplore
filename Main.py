@@ -9,10 +9,11 @@ from potential_field import *
 from tdmclient import ClientAsync
 from local_motion_control import motion_control
 
+global path, global_goal
 path = []
+global_goal = Point(MAP_X_MM_SIZE/2,MAP_Y_MM_SIZE/2)
 
 def smoothen_contours(raw_contours,epsilon_cst):
-    global THRESHOLD_AREA, EPSILON_CST
 
     smooth_contours = []
 
@@ -77,15 +78,19 @@ def find_thymio(polys):
 
 # Returns the position of the end goal based on a filtered image (pink mask)
 def find_destination(polys):
+    global global_goal
+
     while np.size(polys) > 4:
         polys[0].pop()
-    P1 = polys[0][0]
-    P2 = polys[0][1]
-    P3 = polys[0][2]
-    P4 = polys[0][3]
-    global_goal_y = (P1.y + P2.y +  P3.y + P4.y)/4
-    global_goal_x = (P1.x + P2.x +  P3.x + P4.x)/4
-    return Point(global_goal_x, global_goal_y)
+    if np.size(polys) == 4:
+        P1 = polys[0][0]
+        P2 = polys[0][1]
+        P3 = polys[0][2]
+        P4 = polys[0][3]
+        global_goal_y = (P1.y + P2.y +  P3.y + P4.y)/4
+        global_goal_x = (P1.x + P2.x +  P3.x + P4.x)/4
+        return Point(global_goal_x, global_goal_y)
+    else: return global_goal
 
 # Main loop running the code
 def main(node, variables):
@@ -122,7 +127,7 @@ def main(node, variables):
         else:
             # Detecting the obstacles
             polys = image_2_vertices(img_yellow,EPSILON_OBSTACLES)
-            path = global_path(img_yellow, polys, thymio_position, global_goal)
+            path = global_path(img_yellow, polys, thym_pos, global_goal)
 
         print(path)
         if len(path) == 1:
