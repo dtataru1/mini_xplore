@@ -136,7 +136,7 @@ def main(node, variables):
             goal_threshold = STEP_GOAL
 
         ###### TRANSMIT PATH TO LOCAL PLANNER
-        #PotField(node, variables, thymio_position, theta, path)
+        #PotField(node, variables, thym_pos, theta, path)
 
         #print(thymio_position.x,' ',thymio_position.y,' ', theta,' ', path.x,' ', path.y)
         motion_control(node, variables, Point(thym_pos.x,thym_pos.y), theta, path, goal_threshold)

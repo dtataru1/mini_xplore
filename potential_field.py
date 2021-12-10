@@ -5,7 +5,6 @@ import numpy as np
 import math
 import pybresenham
 import matplotlib.pyplot as plt
-#from tdmclient import ClientAsync
 from local_motion_control import motion_control
 
 alpha = math.radians(20)
