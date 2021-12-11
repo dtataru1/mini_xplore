@@ -118,10 +118,13 @@ def main(node, variables):
 
         # Detecting Thymio's position on the map
         polys = image_2_vertices(img_blue,EPSILON_THYMIO)
-        thym_pos, theta = find_thymio(polys)
+        thym_pos_m, theta = find_thymio(polys)
 
-        if thym_pos == Point(-1.0,-1.0): # Vision is obstructed, we can't observe the obstacles
+        if thym_pos_m == Point(-1.0,-1.0): # Vision is obstructed, we can't observe the obstacles
             kalman_vision = 0
+            
+
+
             print('WE LOST THYMIO...')
 
         else:
