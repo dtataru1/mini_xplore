@@ -20,13 +20,18 @@ def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=
         y = np.array([[pos_x_m], [pos_y_m], [theta_m], [speed_x], [speed_y], [speed_w]], dtype=float)
         M = 6
         C = np.array([[1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0], [0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1]])
+        R = np.identity(M) #To update in case of measurement errors
+        R[0,0] = 0.5
+        R[2,2] = 0.5
+        R[4,4] = 0.5
     else:
         y = np.array([[speed_x], [speed_y], [speed_w]], dtype=float)
         M = 3
         C = np.array([[0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1]])
         print('TRYING TO ESTIMATE THYMIO POSITION')
+        R = 6.1*np.identity(M) #To update in case of measurement errors
 
-    R = 6.1*np.identity(M) #To update in case of measurement errors
+    
 
     x_est_a_priori = np.dot(A, x_est_prev); #A priori estimate
     P_est_a_priori = np.dot(A, np.dot(P_est_prev, A.T)) + Q
