@@ -15,25 +15,26 @@ cos1a = math.cos(alpha)
 cos2a = math.cos(2*alpha)
 cos3a = math.cos(3*alpha)
 
-plot = True                    # Plot figure
+plot = True                     # Plot figure
 
 thymio_r = 8                    # thymio radius
 thymio_width = 12
 scale = 1                       # sclaing factor to go from cm to mm
 s = 3                           # distance to goal from where on the potentials have same amplitude
 s_rep = 6
-r = 0.5                           # Point radius
+r = 0.5                         # Point radius
 att = 50                        # attractive force of goal
 rep = -10                       # repulsive force of obstacles
 # Map size
 size = 15
 x = np.arange(-size,size,1)
-y = x
+y = np.arange(-size,size,1)
 X, Y = np.meshgrid(x,y)
 # Robot position. Get pose from localization
 posx = 0
 posy = 0
 pos = [posx, posy]
+r_theta = 0                      # robot heading angle
 
 # Robot goal. Set goal so that pose is at zero --> goal = [goalx-posx, goaly-posy]
 goal_abs = [25, 0]              #[cm]
@@ -94,9 +95,9 @@ def PotField(node, variables):
         proxScale.tolist()
         global x
         global y
-        r_theta = 0                       # robot heading angle
+        global r_theta
         # goal in robot reference
-        goal = rotate((goal_abs[0]-pos[0], goal_abs[1]-pos[1]), -r_theta)
+        goal = rotate((goal_abs[0]-pos[0], goal_abs[1]-pos[1]), r_theta)
 
         # Obstacle distance detected by each sensor
         sens_obstacles = [0 for _ in range(len(proxCm))]     # distance given in cm
@@ -164,7 +165,6 @@ def PotField(node, variables):
             obst.extend(np.array(lP)/scale)
 
         obstacles = np.array(obst)
-        print(obstacles)
         # Potential field of goal
         for i in range(len(x)):
             for j  in range(len(y)):
@@ -250,8 +250,12 @@ def PotField(node, variables):
                 dx_norm = dx_mean/abs(dx_mean)
                 dy_norm = dy_mean/abs(dx_mean)
         # scale up
-        x_next = dx_norm *step_size
-        y_next = dy_norm *step_size
+        dx_next = dx_norm *step_size
+        dy_next = dy_norm *step_size
+
+        next = rotate((dx_next, dy_next), -r_theta)
+        x_next = (next[0]+posx)*10 # to have mm
+        y_next = (next[1]+posy)*10 # to have mm
 
 
         # ## compute next step
@@ -301,7 +305,7 @@ def PotField(node, variables):
         if plot:
             fig, ax = plt.subplots(figsize = (10,10))
             ax.quiver(X, Y, dx, dy)
-            ax.arrow(posx,posy,x_next,y_next, color='y')
+            ax.arrow(posx,posy,x_next/10,y_next/10, color='y')
             ax.add_patch(plt.Circle(goal, r, color='b'))
             for o in range(len(obstacles)):
                 ax.add_patch(plt.Circle(obstacles[o], r, color='r'))
