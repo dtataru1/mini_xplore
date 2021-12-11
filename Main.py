@@ -9,8 +9,13 @@ from constants import *
 from potential_field import *
 from tdmclient import ClientAsync
 from local_motion_control import motion_control
+from kalman_filter import update_position
 
-global path, global_goal, global_polys, compute_global
+global path, global_goal, global_polys, compute_global, motor_left_speed, motor_right_speed, thym_pos, theta
+theta = 0
+thym_pos = Point(0,0)
+motor_left_speed = 0
+motor_right_speed = 0
 path = []
 global_polys = []
 compute_global = True
@@ -53,12 +58,12 @@ def image_2_vertices(image,epsilon_cst):
     return polys
 
 # Returns the position of the Thymio based on a filtered image (blue mask)
-def find_thymio(polys):
+def find_thymio(polys, thym_pos, theta):
     # Check if we detect Thymio's triangle
     while np.size(polys) > 3:
         polys[0].pop()
     if np.size(polys) < 3:
-        return Point(-1.0,-1.0), 0
+        return thym_pos, theta, 0
     # Find Pf
     P1 = polys[0][0]
     P2 = polys[0][1]
@@ -76,8 +81,8 @@ def find_thymio(polys):
     # Find theta
     theta = math.atan2( Pf.y - (P1.y + P2.y) / 2, Pf.x - (P1.x + P2.x) / 2 )
     # Find Pc
-    Pc = Point(Pf.x - PC_PF_DIST*math.cos(theta), Pf.y - PC_PF_DIST*math.sin(theta))
-    return Pc, theta
+    thym_pos = Point(Pf.x - PC_PF_DIST*math.cos(theta), Pf.y - PC_PF_DIST*math.sin(theta))
+    return thym_pos, theta, 1
 
 # Returns the position of the end goal based on a filtered image (pink mask)
 def find_destination(polys):
@@ -106,7 +111,7 @@ with ClientAsync() as client:
 
             #await node.wait_for_variables('prox.horizontal')
             while 1:
-                global path, global_polys, compute_global, compute_goal
+                global path, global_polys, compute_global, compute_goal, motor_left_speed, motor_right_speed, thym_pos, theta
 
                 prox = [i for i in node["prox.horizontal"]]
                 #print('prox', prox)
@@ -136,16 +141,20 @@ with ClientAsync() as client:
                 # Detecting Thymio's position on the map
                 polys = image_2_vertices(img_blue,EPSILON_THYMIO)
                 #print('polys', polys)
-                thym_pos, theta = find_thymio(polys)
+                thym_pos, theta, kalman_vision = find_thymio(polys, thym_pos, theta)
                 #print('thym_pos', thym_pos)
 
-                if thym_pos == Point(-1.0,-1.0): # Vision is obstructed, we can't observe the obstacles
-                    kalman_vision = 0
-                    #print('WE LOST THYMIO...')
-                    #polys = polys_backup
-
                 ### DANIEL KALMAN ###
-                #thym_pos = kalman(thym_pos, kalman_vision)
+                #x_est_prev, P_est_prev = kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, kalman_vision, thym_pos.x, thym_pos.y, theta)
+                #thym_pos = Point(x_est_prev[0][0],x_est[0[3]])
+                #theta = x_est[0][5]
+
+                print('thym_pos.x', thym_pos.x,'thym_pos.y',thym_pos.y,'theta', theta, 'vl', motor_left_speed, 'vr', motor_right_speed)
+                x_est = update_position(Ts, thym_pos.x, thym_pos.y, theta, kalman_vision, motor_left_speed, motor_right_speed)
+                thym_pos.x = x_est[0][0]
+                thym_pos.y = x_est[2][0]
+                theta = x_est[4][0]
+                print('kalman thym_pos.x', thym_pos.x,'thym_pos.y',thym_pos.y,'theta', theta)
 
                 if compute_global: # first time computes the map
                     # Detecting the obstacles
@@ -174,14 +183,15 @@ with ClientAsync() as client:
 
                 #print(thym_pos.x,' ',thym_pos.y,' ', theta,' ', path[0].x,' ', path[0].y)
                 next_step = PotField(prox, thym_pos, theta, path[0])
-                #print('next_step', next_step)
+                print('next_step', next_step)
 
-                draw_polygon(img_yellow, [thym_pos, Point(next_step[0]*10, next_step[1]*10)], (100,100,0), 4, complete=False)
+                draw_polygon(img_yellow, [thym_pos, Point(next_step[0]*2, next_step[1]*2)], (100,100,0), 4, complete=False)
                 #img_yellow = cv2.circle(img_yellow, (int(next_step[0]), int(next_step[1])), radius=20, color=(0, 0, 255), thickness=4)
 
-                print('thym_pos.x', thym_pos.x,'thym_pos.y',thym_pos.y,'theta', theta,'next_step[0]', next_step[0],'next_step[1]', next_step[1])
+                #print('thym_pos.x', thym_pos.x,'thym_pos.y',thym_pos.y,'theta', theta,'next_step[0]', next_step[0],'next_step[1]', next_step[1])
+                [motor_left_speed, motor_right_speed] = motion_control(node, Point(thym_pos.x,thym_pos.y), theta, next_step, path, goal_threshold, motor_left_speed, motor_right_speed)
+                #motion_control(node, Point(thym_pos.x,thym_pos.y), theta, next_step, path, goal_threshold, speed_w)
 
-                motion_control(node, Point(thym_pos.x,thym_pos.y), theta, next_step, path, goal_threshold)
                 #motion_control(node, variables, Point(thym_pos.x,thym_pos.y), theta, [path[0].x,path[0].y], path, goal_threshold)
 
                 final_image = img_purple | img_blue | img_yellow

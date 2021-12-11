@@ -1,4 +1,5 @@
 import pyvisgraph as vg
+import numpy as np
 
 # Thymio values
 PC_PF_DIST = 62.5 #mm
@@ -29,8 +30,12 @@ MAP_Y_MM_SIZE = 790 #mm
 MAP_X_MM_SIZE = 1430 #mm
 CAM_2_MAP = MAP_X_MM_SIZE/CAM_X_PIXEL_SIZE
 
-# Global planner Constants
+# Kalman Constants
 
-#START_POSITION = vg.Point(5.0,5.5) ## Setup HERE
-#END_POSITION = vg.Point(750.0,450.0)  ## Setup HERE
-#THYMIO_POSITION = vg.Point(50.0,55.5)  ## Given by Daniel
+Ts = 0.2
+speed_conv_factor = 0.347 #Speed from thymio speed to mm/s (to confirm)
+rot_conv_factor = 0.0066
+
+P_est_prev = 10 * np.identity(6) #Initial P_est
+x_est_prev = np.array([[0], [0], [0], [0], [0], [0]]) #Initial position
+x_est_range = x_est_prev #Matrix storing all values from the beginning
