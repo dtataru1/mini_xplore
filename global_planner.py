@@ -23,7 +23,7 @@ def increase_coordinates(polygon, howmuch):
 
 def draw_polygon(image, polygon, color, size, complete=True):
     local_polygon = [i for i in polygon]
-
+    #print('PATH', polygon)
     if complete:
         local_polygon.append(local_polygon[0])
     p1 = local_polygon[0]
@@ -43,7 +43,16 @@ def check_point_obstacles_overlap(point,graph,howmuch):
         return vv.closest_point(point, graph, intersected_polygon, length=howmuch)
     else: return point
 
-def global_path(image, polys,thymio_position, end_position):
+def draw_field_borders(image, polys):
+    polys.append([vg.Point(0,100), vg.Point(0,690)])
+    polys.append([vg.Point(100,0), vg.Point(1330,0)])
+    polys.append([vg.Point(1430,100), vg.Point(1430,680)])
+    polys.append([vg.Point(100,790), vg.Point(1330,790)])
+
+    for p in polys[len(polys)-4:]:
+        draw_polygon(image, p, (0,100,100), 6, complete=False)
+
+def global_path(image, polys, thymio_position, end_position, compute_global, path):
 
     g = vg.VisGraph()
     g.build(polys)
@@ -52,43 +61,47 @@ def global_path(image, polys,thymio_position, end_position):
     #start_point = check_point_obstacles_overlap(thymio_position,g.graph,65)
     #end_point = check_point_obstacles_overlap(end_position,g.graph,65)
 
-    # Increasing obstacle borders
-    for p in polys:
-        increase_coordinates(p, 60)
+    if compute_global:
+        # Increasing obstacle borders
+        if polys != []:
+            for p in polys:
+                increase_coordinates(p, 100)
 
-    # Checking obstacles overlaping to merge them
-    i = 0
-    while i < len(polys):
-        j = 0
-        while j < len(polys):
-            if j != i:
-                if mo.check_overlap(polys[j],polys[i]):
-                    # polys[j]: [Point(749.00, 367.00), Point(580.00, 455.00), Point(600.00, 455.00)]
-                    polys[j] = mo.unify(polys[j],polys[i])
-                    polys.pop(i)
-                    i = 0
-                    j = len(polys)
-                else:
-                    j += 1
-            else: j += 1
-        i +=1
+            # Checking obstacles overlaping to merge them
+            i = 0
+            while i < len(polys):
+                j = 0
+                while j < len(polys):
+                    if j != i:
+                        if mo.check_overlap(polys[j],polys[i]):
+                            # polys[j]: [Point(749.00, 367.00), Point(580.00, 455.00), Point(600.00, 455.00)]
+                            polys[j] = mo.unify(polys[j],polys[i])
+                            polys.pop(i)
+                            i = 0
+                            j = len(polys)
+                        else:
+                            j += 1
+                    else: j += 1
+                i +=1
 
-    # Updating polygons map
-    g.build(polys)
 
     # Drawing the new obstacles (possibly merged)
     if len(polys) > 0:
         for polygon in polys:
             draw_polygon(image, polygon,(0,100,100),6)
 
-    # Showing the visibility graph
-    draw_visible_vertices(image, g.visgraph.get_edges(),(50,50,50), 2)
+        #draw_field_borders(image, polys)
+        # Updating polygons map
+        g.build(polys)
 
-    # Computing the shortest path
-    shortest_path = g.shortest_path(thymio_position, end_position)
-    if len(shortest_path) > 1:
-        draw_polygon(image, shortest_path, (100,100,0), 4, complete=False)
+        # Showing the visibility graph
+        draw_visible_vertices(image, g.visgraph.get_edges(),(50,50,50), 2)
 
-    # Exporting the path sequence (without starting point)
-    shortest_path.pop(0)
-    return shortest_path
+    if compute_global:
+        # Computing the shortest path
+        path = g.shortest_path(thymio_position, end_position)
+        path.pop(0)
+
+        # Exporting the path sequence (without starting point)
+
+    return path

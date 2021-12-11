@@ -17,10 +17,9 @@ STEP_GOAL = 40
 #T = 0.1 # time constant between measures: motor control speed = 100Hz (@datasheet), taken at 10 Hz here
 
 # Computer Vision Constants
-
 THRESHOLD_AREA = 1000
 EPSILON_THYMIO = 0.06
-EPSILON_OBSTACLES = 0.05
+EPSILON_OBSTACLES = 0.03
 EPSILON_GOAL = 0.03
 
 # Map and Pixel sizes
