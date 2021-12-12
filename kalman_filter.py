@@ -4,7 +4,11 @@ import time
 import numpy as np
 from tdmclient import ClientAsync
 from constants import *
+import time
 
+global end, start
+end = 0.2
+start = 0
 
 def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=0, pos_x_m=0.0, pos_y_m=0.0, theta_m=0):
 
@@ -14,17 +18,25 @@ def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=
     #A = np.array([[1, Ts, Ts*Ts/2.0, 0, 0, 0, 0, 0], [0, 1, Ts, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 1, Ts, Ts*Ts/2.0, 0, 0], [0, 0, 0, 0, 1, Ts, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 1, Ts], [0, 0, 0, 0, 0, 0, 0, 1]])
     #N = 8
 
-    Q = 10.1*np.identity(N)
+    Q = 6.1*np.identity(N)
+    Q[4][4] = 10.2
 
     if vision==1:
         y = np.array([[pos_x_m], [pos_y_m], [theta_m], [speed_x], [speed_y], [speed_w]], dtype=float)
         M = 6
         C = np.array([[1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0], [0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1]])
+        R = 6.1*np.identity(M) #To update in case of measurement errors
+        R[0][0] = 0.5
+        R[2][2] = 0.5
+        R[4][4] = 0.5
+        R[5][5] = 4
     else:
         y = np.array([[speed_x], [speed_y], [speed_w]], dtype=float)
         M = 3
         C = np.array([[0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1]])
         print('TRYING TO ESTIMATE THYMIO POSITION')
+        R = 6.1*np.identity(M) #To update in case of measurement errors
+        R[2][2] = 4
 
     R = 6.1*np.identity(M) #To update in case of measurement errors
 
@@ -40,29 +52,25 @@ def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=
     return x_est, P_est
 
 def update_position(Ts, pos_x_m, pos_y_m, theta_m, vision, motor_left_speed, motor_right_speed):
-    print('ENTRY', pos_x_m, pos_y_m, theta_m, vision, motor_left_speed, motor_right_speed)
-    global x_est_prev, P_est_prev
+    #print('ENTRY', pos_x_m, pos_y_m, theta_m, vision, motor_left_speed, motor_right_speed)
+    #print('ENTRY', 'motor_left_speed', motor_left_speed, 'motor_right_speed', motor_right_speed)
+    global x_est_prev, P_est_prev, end, start
 
     #accel_x = 0.00981/23*acc[1]*np.cos(theta)+0.00981/23*acc[0]*np.sin(theta)
     #accel_y = 0.00981/23*acc[1]*np.sin(theta)-0.00981/23*acc[0]*np.cos(theta)
     speed_x = (speed_conv_factor*(motor_left_speed+motor_right_speed)/2.0) * np.cos(x_est_prev[4])
     speed_y = (speed_conv_factor*(motor_left_speed+motor_right_speed)/2.0) * np.sin(x_est_prev[4])
     speed_w = rot_conv_factor*(motor_right_speed-motor_left_speed)/(2.0)
+    #end = time.time()
+    #Ts = (end - start)
     x_est, P_est = kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision, pos_x_m, pos_y_m, theta_m)
+    #start = time.time()
+    #print('Ts', end-start)
+
     #x_est_range = np.concatenate((x_est_range, x_est), axis=1) #Storing all estimations from the beggining
     x_est_prev = x_est
     P_est_prev = P_est
-    time.sleep(Ts)
+
     print('OUTPUT', x_est)
 
     return x_est
-
-
-# with ClientAsync() as client:
-#     async def prog():
-#         with await client.lock() as node:
-#             await node.watch(variables=True)
-#             node.add_variables_changed_listener(update_position)
-#             # Will sleep forever:
-#             await client.sleep()
-#     client.run_async_program(prog)

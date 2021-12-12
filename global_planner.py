@@ -65,7 +65,7 @@ def global_path(image, polys, thymio_position, end_position, compute_global, pat
         # Increasing obstacle borders
         if polys != []:
             for p in polys:
-                increase_coordinates(p, 100)
+                increase_coordinates(p, OBST_INCREASE)
 
             # Checking obstacles overlaping to merge them
             i = 0
@@ -88,7 +88,7 @@ def global_path(image, polys, thymio_position, end_position, compute_global, pat
     # Drawing the new obstacles (possibly merged)
     if len(polys) > 0:
         for polygon in polys:
-            draw_polygon(image, polygon,(0,100,100),6)
+            draw_polygon(image, polygon,(0,255,0),6)
 
         #draw_field_borders(image, polys)
         # Updating polygons map

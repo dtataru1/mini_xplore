@@ -101,7 +101,7 @@ def PotField(prox, thymio_position, r_theta, path):
     global y
 
     # goal in robot reference
-    goal = np.array(rotate((goal_abs[0]-thymio_position.x, thymio_position.y-goal_abs[1]), -r_theta))/10 # mm to cm
+    goal = np.array(rotate((goal_abs[0]-thymio_position.x, thymio_position.y-goal_abs[1]), r_theta))/10 # mm to cm
 
     # Obstacle distance detected by each sensor
     sens_obstacles = [0 for _ in range(len(proxCm))]     # distance given in cm
@@ -257,7 +257,7 @@ def PotField(prox, thymio_position, r_theta, path):
     dx_next = dx_norm *step_size
     dy_next = dy_norm *step_size
 
-    next = rotate((dx_next, dy_next), r_theta)
+    next = rotate((dx_next, dy_next), -r_theta)
     x_next = (next[0]+thymio_position.x/10)*10 # to have mm
     y_next = (-next[1]+thymio_position.y/10)*10 # to have mm
     #print('x_next', x_next, 'y_next', y_next, 'thym_next_x', next[0],'thym_next_y', -next[1])
