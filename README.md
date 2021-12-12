@@ -3,6 +3,15 @@
 
 Required libraries:
 
+-numpy
+pip install numpy
+
+-opencCV
+pip install opencv-python
+
+-matplotlib
+pip install matplotlib
+
 - tqdm (https://pypi.org/project/tqdm/):
 pip install tqdm
 
