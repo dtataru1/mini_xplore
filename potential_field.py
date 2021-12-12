@@ -8,6 +8,8 @@ import pybresenham
 import matplotlib.pyplot as plt
 from constants import *
 
+plot = False
+
 # get x and y coordinate for a given prox value (in cm) and prox sensor with origin at the center of the robot
 def getXY(sensor, proxCm, proxToEval=10):
     if proxToEval == 10:
@@ -45,6 +47,8 @@ def rotate(xy, angle):
 
 # Local planner based on potential fields
 def PotField(prox, thymio_position, r_theta, path):
+
+    global plot
 
     posx = -8
     posy = 0
@@ -154,10 +158,8 @@ def PotField(prox, thymio_position, r_theta, path):
         for i in range(len(x)):
           for j in range(len(y)):
             # Calculation the distance to the obstacle
-            #d = np.sqrt((obstacles[0]-X[i][j])**2 + (obstacles[1]-Y[i][j])**2)
             d = np.sqrt((obstacles[o][0]-X[i][j])**2 + (obstacles[o][1]-Y[i][j])**2)
             #Calculation angle
-            #theta = np.arctan2(obstacles[1]-Y[i][j], obstacles[0]-X[i][j])
             theta = np.arctan2(obstacles[o][1]-Y[i][j], obstacles[o][0]-X[i][j])
             # x and y componants of the potential at each point
             if d<r:
@@ -221,7 +223,7 @@ def PotField(prox, thymio_position, r_theta, path):
     x_next = (next[0]+thymio_position.x/10)*10 # to have mm
     y_next = (-next[1]+thymio_position.y/10)*10 # to have mm
 
-    if 0:
+    if plot:
         fig, ax = plt.subplots(figsize = (10,10))
         ax.quiver(X, Y, dx, dy)
         ax.arrow(posx,posy,x_next/10,y_next/10, color='y')

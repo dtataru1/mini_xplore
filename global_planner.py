@@ -41,12 +41,6 @@ def draw_visible_vertices(image, edges, color, size):
     for e in edges:
         cv2.line(image, (int(e.p1.x), int(e.p1.y)), (int(e.p2.x), int(e.p2.y)), color=color, thickness=size)
 
-def check_point_obstacles_overlap(point,graph,howmuch):
-    intersected_polygon = vv.point_in_polygon(point,graph)
-    if intersected_polygon != -1:
-        return vv.closest_point(point, graph, intersected_polygon, length=howmuch)
-    else: return point
-
 def draw_field_borders(image, polys):
     polys.append([vg.Point(0,100), vg.Point(0,690)])
     polys.append([vg.Point(100,0), vg.Point(1330,0)])
