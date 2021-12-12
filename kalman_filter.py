@@ -21,6 +21,7 @@ def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=
     Q = 6.1*np.identity(N)
     Q[4][4] = 10.2
 
+
     if vision==1:
         y = np.array([[pos_x_m], [pos_y_m], [theta_m], [speed_x], [speed_y], [speed_w]], dtype=float)
         M = 6
@@ -38,7 +39,7 @@ def kalman_filter(Ts, speed_x, speed_y, speed_w ,x_est_prev, P_est_prev, vision=
         R = 6.1*np.identity(M) #To update in case of measurement errors
         R[2][2] = 4
 
-    R = 6.1*np.identity(M) #To update in case of measurement errors
+    
 
     x_est_a_priori = np.dot(A, x_est_prev); #A priori estimate
     P_est_a_priori = np.dot(A, np.dot(P_est_prev, A.T)) + Q
