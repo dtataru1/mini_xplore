@@ -11,8 +11,6 @@ from tdmclient import ClientAsync
 from local_motion_control import motion_control
 from kalman_filter import update_position
 
-
-global path, global_goal, global_polys, compute_global, motor_left_speed, motor_right_speed, thym_pos, theta
 theta = 0
 thym_pos = Point(0,0)
 motor_left_speed = 0
@@ -46,7 +44,6 @@ def get_vertices(image, smooth_contours):
             image = cv2.circle(image, (vertices[0][0], vertices[0][1]), radius=5, color=(255, 0, 0), thickness=2)
             points.append(Point(vertices[0][0], vertices[0][1]))
         polys.append(points)
-    #print(polys)
     return polys
 
 # Computes the contours and the vertices given a filtered image (colored masks)
@@ -55,7 +52,6 @@ def image_2_vertices(image,epsilon_cst):
     smooth_contours = smoothen_contours(contours,epsilon_cst)
     cv2.drawContours(image, smooth_contours, -1, (200, 200, 200), 3)
     polys = get_vertices(image, smooth_contours)
-
     return polys
 
 # Returns the position of the Thymio based on a filtered image (blue mask)
@@ -111,16 +107,14 @@ with ClientAsync() as client:
         with await client.lock() as node:
             await node.watch(variables=True)
 
-            #await node.wait_for_variables('prox.horizontal')
             while 1:
+                # Defining used variables
                 global path, global_polys, compute_global, compute_goal, motor_left_speed, motor_right_speed, thym_pos, theta
-
+                kalman_vision = 1
                 prox = [i for i in node["prox.horizontal"]]
                 del prox[6]
                 del prox[5]
 
-
-                kalman_vision = 1
                 cap = cv2.VideoCapture(0)
                 cv2.namedWindow("Thymio field", cv2.WINDOW_NORMAL)
                 # Extract image
