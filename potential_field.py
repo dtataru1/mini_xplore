@@ -66,7 +66,7 @@ def getXY(sensor, proxCm, proxToEval=10):
 
 # convert values of proximity sensor to cm
 def prox2cm(x):
-    y = -0.00375*x + 18.63
+    y = -0.00375*x + 18.63+1
     for idx in range(len(x)):
         if y[idx] >= 18.62:
             y[idx] = 0

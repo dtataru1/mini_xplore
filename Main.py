@@ -121,7 +121,7 @@ with ClientAsync() as client:
 
 
                 kalman_vision = 1
-                cap = cv2.VideoCapture(1)
+                cap = cv2.VideoCapture(0)
                 cv2.namedWindow("Thymio field", cv2.WINDOW_NORMAL)
                 # Extract image
                 ret, img = cap.read()

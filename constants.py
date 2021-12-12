@@ -13,7 +13,7 @@ v0 = 15 # basic wheel speed
 
 # Local motion
 K = 0.2 # gain
-FINAL_GOAL = 120
+FINAL_GOAL = 80
 STEP_GOAL = 60
 #T = 0.1 # time constant between measures: motor control speed = 100Hz (@datasheet), taken at 10 Hz here
 
@@ -22,7 +22,7 @@ THRESHOLD_AREA = 1000
 EPSILON_THYMIO = 0.06
 EPSILON_OBSTACLES = 0.03
 EPSILON_GOAL = 0.03
-OBST_INCREASE = 100
+OBST_INCREASE = 80
 
 # Map and Pixel sizes
 CAM_Y_PIXEL_SIZE = 1080 #pixels
