@@ -62,17 +62,8 @@ def update_position(Ts, pos_x_m, pos_y_m, theta_m, vision, motor_left_speed, mot
     #x_est_range = np.concatenate((x_est_range, x_est), axis=1) #Storing all estimations from the beggining
     x_est_prev = x_est
     P_est_prev = P_est
-    time.sleep(Ts)
     print('OUTPUT', x_est)
 
     return x_est
 
 
-# with ClientAsync() as client:
-#     async def prog():
-#         with await client.lock() as node:
-#             await node.watch(variables=True)
-#             node.add_variables_changed_listener(update_position)
-#             # Will sleep forever:
-#             await client.sleep()
-#     client.run_async_program(prog)

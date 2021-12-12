@@ -137,7 +137,7 @@ with ClientAsync() as client:
                 # Detecting the end goal position on the map
                 polys = image_2_vertices(img_purple,EPSILON_GOAL)
                 global_goal = find_destination(polys)
-
+            
                 # Detecting Thymio's position on the map
                 polys = image_2_vertices(img_blue,EPSILON_THYMIO)
                 #print('polys', polys)
@@ -202,6 +202,6 @@ with ClientAsync() as client:
 
                 compute_global = False
 
-                await client.sleep(0.1)
+                await client.sleep(0.001)
 
     client.run_async_program(prog)

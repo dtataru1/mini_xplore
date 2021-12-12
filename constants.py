@@ -13,8 +13,8 @@ v0 = 10 # basic wheel speed
 
 # Local motion
 K = 0.2 # gain
-FINAL_GOAL = 120
-STEP_GOAL = 40
+FINAL_GOAL = 20
+STEP_GOAL = 20
 #T = 0.1 # time constant between measures: motor control speed = 100Hz (@datasheet), taken at 10 Hz here
 
 # Computer Vision Constants
@@ -32,8 +32,9 @@ CAM_2_MAP = MAP_X_MM_SIZE/CAM_X_PIXEL_SIZE
 
 # Kalman Constants
 
-Ts = 0.2
-speed_conv_factor = 0.347 #Speed from thymio speed to mm/s (to confirm)
+Ts = 0.25
+speed_conv_factor = 0.36 #Speed from thymio speed to mm/s (to confirm)
+
 rot_conv_factor = 0.0066
 
 P_est_prev = 10 * np.identity(6) #Initial P_est
