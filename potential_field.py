@@ -1,3 +1,4 @@
+### SOURCES:
 # Potential Field: https://medium.com/nerd-for-tech/local-path-planning-using-virtual-potential-field-in-python-ec0998f490af
 # Bresenham algorithm: https://pypi.org/project/PyBresenham/
 
@@ -5,39 +6,11 @@ import numpy as np
 import math
 import pybresenham
 import matplotlib.pyplot as plt
-
-alpha = math.radians(20)
-sin1a = math.sin(alpha)
-sin2a = math.sin(2*alpha)
-sin3a = math.sin(3*alpha)
-cos1a = math.cos(alpha)
-cos2a = math.cos(2*alpha)
-cos3a = math.cos(3*alpha)
-
-thymio_r = 8                    # thymio radius
-thymio_width = 12
-scale = 1                       # sclaing factor to go from cm to mm
-s = 3                           # distance to goal from where on the potentials have same amplitude
-s_rep = 6
-r = 0.5                         # Point radius
-att = 50                        # attractive force of goal
-rep = -25                       # repulsive force of obstacles
-# Map size
-size = 15
-x = np.arange(-size,size,1)
-y = np.arange(-size,size,1)
-X, Y = np.meshgrid(x,y)
-
-# Robot goal. Set goal so that pose is at zero --> goal = [goalx-posx, goaly-posy]
-goal_abs = [25, 0]              #[cm]
-
-step_size = 2                   #[cm]
-
+from constants import *
 
 # get x and y coordinate for a given prox value (in cm) and prox sensor with origin at the center of the robot
 def getXY(sensor, proxCm, proxToEval=10):
     if proxToEval == 10:
-        #default: proxToEval[0...4] = sensor[1...5]. Same sensor to eval than the one that gives the value
         proxToEval = (sensor-1)
     if sensor == 1:
         xy = [(thymio_r+proxCm[proxToEval])*cos2a, (thymio_r+proxCm[proxToEval])*sin2a]
@@ -65,13 +38,12 @@ def prox2cm(x):
             y[idx] = 0
     return y
 
-
 # Rotation matrix
 def rotate(xy, angle):
     new_xy = [math.cos(angle)*xy[0] - math.sin(angle)*xy[1], math.sin(angle)*xy[0] + math.cos(angle)*xy[1]]
     return new_xy
 
-
+# Local planner based on potential fields
 def PotField(prox, thymio_position, r_theta, path):
 
     posx = -8
@@ -248,5 +220,15 @@ def PotField(prox, thymio_position, r_theta, path):
     next = rotate((dx_next, dy_next), -r_theta)
     x_next = (next[0]+thymio_position.x/10)*10 # to have mm
     y_next = (-next[1]+thymio_position.y/10)*10 # to have mm
+
+    if 0:
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.quiver(X, Y, dx, dy)
+        ax.arrow(posx,posy,x_next/10,y_next/10, color='y')
+        ax.add_patch(plt.Circle(goal, r, color='b'))
+        for o in range(len(obstacles)):
+            ax.add_patch(plt.Circle(obstacles[o], r, color='r'))
+        ax.add_patch(plt.Circle([posx,posy], r, color='y'))
+        plt.show()
 
     return [x_next,y_next]

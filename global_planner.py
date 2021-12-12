@@ -1,3 +1,8 @@
+### SOURCES:
+# tqdm (https://pypi.org/project/tqdm/): pip install tqdm
+# pyvisgraph (https://github.com/TaipanRex/pyvisgraph): pip install pyvisgraph
+# shapely (https://pypi.org/project/Shapely/): REQUIRES GEOS: brew install geos pip install shapely
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pyvisgraph as vg
@@ -8,6 +13,7 @@ from pyvisgraph.graph import Point
 import math
 from constants import *
 import pyclipper
+
 
 def increase_coordinates(polygon):
     subj = []
@@ -50,6 +56,7 @@ def draw_field_borders(image, polys):
     for p in polys[len(polys)-4:]:
         draw_polygon(image, p, (0,100,100), 6, complete=False)
 
+# Global Planner based on visibility graph (vg)
 def global_path(image, polys, thymio_position, end_position, compute_global, path):
 
     g = vg.VisGraph()
@@ -78,7 +85,6 @@ def global_path(image, polys, thymio_position, end_position, compute_global, pat
                             j += 1
                     else: j += 1
                 i +=1
-
 
     # Drawing the new obstacles (possibly merged)
     if len(polys) > 0:
